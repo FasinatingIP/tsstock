@@ -103,7 +103,6 @@ symbollist=get_symbollist()
 if st.button('更新实时价格'):
         have=get_have()
         olsparams=get_olsparams(symbollist=symbollist,history_enddate=history_enddate) 
-        st.write("历史数据更新至"+olsparams['enddate'][0])
         realtimedata=get_realtimedata(symbollist)
         latestdata=(olsparams
                     .merge(realtimedata,on='ts_code',how='left')
@@ -130,7 +129,7 @@ if st.button('更新实时价格'):
         st.dataframe(latestdata_show)
         st.write("total: "+str(round(latestdata_show['income'].sum(),2)))
         st.write("实时数据更新至"+''+latestdata['date'][0]+' '+latestdata['time'][0])
-        
+        st.write("历史数据更新至"+olsparams['enddate'][0])
     #st.table(latestdata_show)
 else:
     st.write('')
