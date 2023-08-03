@@ -96,8 +96,7 @@ def get_have():
     have['ts_code']=have.apply(lambda x:x['ts_code']+'.SH' if x['ts_code'][0]=='6' else x['ts_code']+'.SZ', axis=1)
     return have
 
-
-date_choose=st.date_input(label="choose",value=date.today())
+date_choose=st.date_input(label="choose",value=date.today(),label_visibility="collapsed")
 history_enddate=date_choose.strftime("%Y%m%d")
 symbollist=get_symbollist()
 if st.button('更新实时价格'):
