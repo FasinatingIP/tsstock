@@ -107,7 +107,7 @@ if st.button('更新实时价格'):
                     .merge(realtimedata,on='ts_code',how='left')
                     .merge(have,on='ts_code',how='outer')
                     )
-        latestdata['income']=round((latestdata['price']-latestdata['buy'])*latestdata['quant']-(latestdata['price']*latestdata['quant']*1/1000+latestdata['price']*latestdata['quant']*0.02/1000+5),2)
+        latestdata['income']=round((latestdata['price']-latestdata['buy'])*latestdata['quant']-(latestdata['price']*latestdata['quant']*0.5/1000+latestdata['price']*latestdata['quant']*0.02/1000+5),2)
         latestdata['predict_low']=round(latestdata['predict_low_params']*latestdata['open'],2)
         latestdata['predict_high']=round(latestdata['predict_high_params']*latestdata['open'],2)
    
