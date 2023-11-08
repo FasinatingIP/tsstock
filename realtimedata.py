@@ -27,7 +27,8 @@ import scipy
 import statsmodels.formula.api as smf
 import pandas as pd 
 from datetime import date
-#print(ts.__version__)
+import requests
+#print(requests.__version__)
            
 
 def get_symbollist(): 
@@ -43,17 +44,29 @@ def get_olsparams(symbollist,history_enddate):
     olsparams=pd.DataFrame()
   
     for i in symbollist:
-        #i='603887'
-        if i[0]=='0':
-            codei=i+'.SZ'
+        #i='588030'
+        if i[0]=="5":
+            #代码后3位  代码
+            url="https://hq.stock.sohu.com/mkline/cn/"+i[3:]+"/cn_"+i+"-10_2.html?"
+            res=requests.get(url)
+            start=res.text.find("(")+len("(")
+            end=res.text.find(")")
+            ressplit=eval(res.text[start:end]).get("dataBasic")
+            historydata=pd.DataFrame(ressplit,columns=['trade_date','open','close','high','low','vol','amount','unknown','change','pct_chg']).sort_values('trade_date',ascending=True)
+            historydata[['open','close','high','low']]=historydata[['open','close','high','low']].apply(lambda x :pd.to_numeric(x),axis=1)
+            historydata['ts_code']=i
         else:
-            codei=i+'.SH'
-        #获取历史数据
-        #codei='601766.SH'
-        #history_enddate='20231108'
-        historydata=pro.daily(ts_code= codei, start_date='20220101', end_date=history_enddate).sort_values('trade_date',ascending=True)
+            if i[0]=='6':
+                codei=i+'.SH'
+            else:
+                codei=i+'.SZ'
+            #获取历史数据
+            #codei='002370.SZ'
+            #history_enddate='20231108'
+            
+            historydata=pro.daily(ts_code= codei, start_date='20220101', end_date=history_enddate).sort_values('trade_date',ascending=True)
+            
         
-        #historydata=pd.read_csv("H:/tsstock/historycsv/"+'601766'+"_"+'20230330'+".csv")
         #
         model_low = smf.ols("low ~ open-1", historydata).fit()
         #print(model_low.summary())
@@ -74,11 +87,22 @@ def get_olsparams(symbollist,history_enddate):
         time.sleep(random.uniform(1,5))
     return olsparams
 
+def ts_code_suffix(i):
+    if i[0]=="5":
+        codei=i
+    else:
+        if i[0]=='6':
+            codei=i+'.SH'
+        else:
+            codei=i+'.SZ'
+    return codei
+
 #获取实时数据
 def get_realtimedata(symbollist):
     #ts.get_realtime_quotes('002370')
     realtimedata = ts.get_realtime_quotes(symbollist)[['name','open','price','high','low','pre_close','date','time','code']]
-    realtimedata['ts_code']=realtimedata.apply(lambda x:x['code']+'.SH' if x['code'][0]=='6' else x['code']+'.SZ', axis=1)
+    
+    realtimedata['ts_code']=realtimedata['code'].apply(lambda x:ts_code_suffix(x))
     realtimedata['open']=realtimedata['open'].apply(lambda x:pd.to_numeric(x))
     realtimedata['price']=realtimedata['price'].apply(lambda x:pd.to_numeric(x))
     realtimedata['high']=realtimedata['high'].apply(lambda x:pd.to_numeric(x))
@@ -96,7 +120,7 @@ def get_have():
         havefile =file.read()
         dictFinal =eval(havefile)
         have =pd.DataFrame.from_dict(dictFinal, orient='columns')
-    have['ts_code']=have.apply(lambda x:x['ts_code']+'.SH' if x['ts_code'][0]=='6' else x['ts_code']+'.SZ', axis=1)
+    have['ts_code']=have['ts_code'].apply(lambda x:ts_code_suffix(x))
     return have
 
 date_choose=st.date_input(label="choose",value=date.today(),label_visibility="collapsed")
