@@ -17,16 +17,17 @@ st.set_page_config(
 
 # import os
 # st.write(os.getcwd())   #取得当前工作目录
-#os.chdir(r'H:\git_tsstock\tsstock')
+#os.chdir(r'H:\git_tsstockfip\tsstock')
 import tushare as ts
 pro = ts.pro_api('e79d0344d6ac178e4d5973c42b612c9ed776bc47117c49aa9d3d7b24')
 
 import time
 import random
+import scipy
 import statsmodels.formula.api as smf
 import pandas as pd 
 from datetime import date
-#print(pd.__version__)
+#print(ts.__version__)
            
 
 def get_symbollist(): 
@@ -34,7 +35,6 @@ def get_symbollist():
         symbollistfile =file.read()
         symbollist =eval(symbollistfile)
     return symbollist
-
 
 #回归系数及相关系数
 @st.cache_data
@@ -48,8 +48,11 @@ def get_olsparams(symbollist,history_enddate):
             codei=i+'.SZ'
         else:
             codei=i+'.SH'
-        #获取历史数据    
+        #获取历史数据
+        #codei='601766.SH'
+        #history_enddate='20231108'
         historydata=pro.daily(ts_code= codei, start_date='20220101', end_date=history_enddate).sort_values('trade_date',ascending=True)
+        
         #historydata=pd.read_csv("H:/tsstock/historycsv/"+'601766'+"_"+'20230330'+".csv")
         #
         model_low = smf.ols("low ~ open-1", historydata).fit()
