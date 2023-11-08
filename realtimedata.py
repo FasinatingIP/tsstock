@@ -23,7 +23,6 @@ pro = ts.pro_api('e79d0344d6ac178e4d5973c42b612c9ed776bc47117c49aa9d3d7b24')
 
 import time
 import random
-import scipy
 import statsmodels.formula.api as smf
 import pandas as pd 
 from datetime import date
